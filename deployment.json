@@ -2,17 +2,16 @@
   "network": "studionet",
   "chainId": 61999,
   "rpcUrl": "https://studio.genlayer.com/api",
-  "contractAddress": "0xd74B7d80dE90efF7e2325B4c9773712d072f6dC4",
-  "transactionHash": "0x1a2447042130fb7ece594b082edf7de6bd4aa7b9844cfa413eaf60c2be5badf3",
-  "deployerAddress": "0xfF9Fa28CBeA335c6Be6DE44Be1c15c81606cf014",
+  "contractAddress": "0x5290c0d554B3Cf059fF92BE5001080ca8A58a03b",
+  "deployerAddress": "0x52c5e913fc54d00cba5df3312268bf66035661f8",
   "status": "5",
   "receipt": {
-    "hash": "0x1a2447042130fb7ece594b082edf7de6bd4aa7b9844cfa413eaf60c2be5badf3",
-    "from_address": "0xfF9Fa28CBeA335c6Be6DE44Be1c15c81606cf014",
-    "to_address": "0xd74B7d80dE90efF7e2325B4c9773712d072f6dC4",
+    "from_address": "0x52c5e913fc54d00cba5df3312268bf66035661f8",
+    "to_address": "0x5290c0d554B3Cf059fF92BE5001080ca8A58a03b",
     "data": {
       "calldata": "Bg==",
-      "contract_address": "0xd74B7d80dE90efF7e2325B4c9773712d072f6dC4"
+      "contract_address": "0x5290c0d554B3Cf059fF92BE5001080ca8A58a03b"
+
     },
     "value": 0,
     "type": 1,
