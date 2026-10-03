@@ -12,21 +12,25 @@
 
 The LuxuryAuthRegistryX Intelligent Contract is deployed and verified on GenLayer studionet:
 
-- **CONTRACT_ADDRESS:** `0xB3c2C873fa167C08F76329a2B59a54Fe1Cf2435F`
+- **CONTRACT_ADDRESS:** `0xd74B7d80dE90efF7e2325B4c9773712d072f6dC4`
+- **Transaction Hash:** `0x1a2447042130fb7ece594b082edf7de6bd4aa7b9844cfa413eaf60c2be5badf3`
+- **Deployer Address:** `0xfF9Fa28CBeA335c6Be6DE44Be1c15c81606cf014`
 - **NETWORK:** `studionet` (Chain ID: `61999` / `0xF1EF`)
 - **Execution Environment:** GenVM / Optimistic Democracy Semantic Consensus
 - **Contract Source:** [`contracts/luxury_auth_registry_x.py`](contracts/luxury_auth_registry_x.py)
 - **Deployment Status:** `ACCEPTED` (Receipt Status: `5`)
+- **Deployment Record:** [`deployment.json`](deployment.json)
 - **Explorer:** [GenLayer Studio](https://studio.genlayer.com)
 
 ---
 
 ## 2. Executive Summary & Steward Feedback Resolution
 
-In response to the GenLayer Foundation Portal Steward Reviews, LuxuryAuthRegistryX incorporates strict production safeguards to avoid prior rejection pitfalls:
+In response to the GenLayer Foundation Portal Steward Reviews by Joaquin, LuxuryAuthRegistryX incorporates strict production safeguards to avoid prior rejection pitfalls:
 
 | Steward Criticism & Pitfall | Technical Implementation in Contract | Guarantee Enforced |
 |---|---|---|
+| **Seller Bond Terminal State Guard (Joaquin Review)** | `deposit_seller_bond` explicitly validates `deal.status == "FUNDED"` before accepting funds or mutating state. Verified via regression test `test_deposit_seller_bond_reverts_after_terminal_states`. | Strictly rejects bond deposits after seller settlement, buyer refund, and insufficient-data dispute closure. |
 | **Line 1-3 Pragma Exactness** | Line 1 is strictly `# v0.2.16`, line 2 is `# { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }`, line 3 is `from genlayer import *`. | Guarantees exact GenVM v0.2.16 bytecode compilation without loader errors. |
 | **No deprecated `@gl.evm.contract_interface`** | Replaced with official GenLayer SDK transfer pattern: `gl.get_contract_at(recipient).emit_transfer(value=u256(int(amount)))`. | Safe native GEN transfer without ABI encoding failures. |
 | **Discrete Consensus Binding** | Validators must strictly reach 100% agreement on one of 4 discrete enum outcomes: `AUTHENTIC_CLEAN`, `STOLEN_FLAGGED`, `COUNTERFEIT_FLAGGED`, `INSUFFICIENT_DATA`. | Eliminates unbound floating point or LLM phrasing divergence errors in consensus. |
@@ -197,7 +201,7 @@ class LuxuryEscrowDeal:
 
 ## 6. Test Suite & Verification Evidence
 
-All 14 unit tests pass with 100% coverage using `gltest` (`genlayer-test` v0.29.2):
+All 15 unit tests pass with 100% coverage using `gltest` (`genlayer-test` v0.29.2):
 
 ```bash
 $ pytest tests/ -v
@@ -205,22 +209,23 @@ $ pytest tests/ -v
 platform win32 -- Python 3.13.12, pytest-9.1.1, pluggy-1.6.0
 rootdir: C:\Users\Admin\Documents\genlayer\intel contract\LuxuryAuthRegistryX
 plugins: genlayer-test-0.29.2
-collected 14 items
+collected 15 items
 
-tests/test_luxury_auth_registry_x.py::test_initial_state_and_domains PASSED [  7%]
-tests/test_luxury_auth_registry_x.py::test_create_and_fund_deal_success PASSED [ 14%]
-tests/test_luxury_auth_registry_x.py::test_create_deal_validation_failures PASSED [ 21%]
-tests/test_luxury_auth_registry_x.py::test_deposit_seller_bond PASSED    [ 28%]
-tests/test_luxury_auth_registry_x.py::test_confirm_receipt_and_release_happy_path PASSED [ 35%]
-tests/test_luxury_auth_registry_x.py::test_dispute_authenticity_stolen_flagged PASSED [ 42%]
-tests/test_luxury_auth_registry_x.py::test_dispute_authenticity_counterfeit_flagged PASSED [ 50%]
-tests/test_luxury_auth_registry_x.py::test_dispute_authenticity_clean_verified PASSED [ 57%]
-tests/test_luxury_auth_registry_x.py::test_dispute_inaccessible_url_insufficient_data PASSED [ 64%]
-tests/test_luxury_auth_registry_x.py::test_dispute_third_party_reverts PASSED [ 71%]
-tests/test_luxury_auth_registry_x.py::test_dispute_non_funded_state_reverts PASSED [ 78%]
-tests/test_luxury_auth_registry_x.py::test_dispute_invalid_llm_json_fallback PASSED [ 85%]
-tests/test_luxury_auth_registry_x.py::test_dispute_low_confidence_fallback PASSED [ 92%]
-tests/test_luxury_auth_registry_x.py::test_multi_deal_isolation PASSED   [100%]
+tests/test_luxury_auth_registry_x.py::test_initial_state_and_domains PASSED [  6%]
+tests/test_luxury_auth_registry_x.py::test_create_and_fund_deal_success PASSED [ 13%]
+tests/test_luxury_auth_registry_x.py::test_create_deal_validation_failures PASSED [ 20%]
+tests/test_luxury_auth_registry_x.py::test_deposit_seller_bond PASSED    [ 26%]
+tests/test_luxury_auth_registry_x.py::test_confirm_receipt_and_release_happy_path PASSED [ 33%]
+tests/test_luxury_auth_registry_x.py::test_dispute_authenticity_stolen_flagged PASSED [ 40%]
+tests/test_luxury_auth_registry_x.py::test_dispute_authenticity_counterfeit_flagged PASSED [ 46%]
+tests/test_luxury_auth_registry_x.py::test_dispute_authenticity_clean_verified PASSED [ 53%]
+tests/test_luxury_auth_registry_x.py::test_dispute_inaccessible_url_insufficient_data PASSED [ 60%]
+tests/test_luxury_auth_registry_x.py::test_dispute_third_party_reverts PASSED [ 66%]
+tests/test_luxury_auth_registry_x.py::test_dispute_non_funded_state_reverts PASSED [ 73%]
+tests/test_luxury_auth_registry_x.py::test_dispute_invalid_llm_json_fallback PASSED [ 80%]
+tests/test_luxury_auth_registry_x.py::test_dispute_low_confidence_fallback PASSED [ 86%]
+tests/test_luxury_auth_registry_x.py::test_multi_deal_isolation PASSED   [ 93%]
+tests/test_luxury_auth_registry_x.py::test_deposit_seller_bond_reverts_after_terminal_states PASSED [100%]
 
-============================= 14 passed in 5.07s ==============================
+============================= 15 passed in 2.47s ==============================
 ```

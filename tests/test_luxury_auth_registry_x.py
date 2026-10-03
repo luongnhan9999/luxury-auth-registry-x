@@ -479,3 +479,89 @@ def test_multi_deal_isolation(contract, direct_vm, direct_alice, direct_bob):
     assert deal2["verdict"] == "AUTHENTIC_CLEAN"
     assert deal2["status"] == "SETTLED_TO_SELLER"
     assert contract.is_serial_blacklisted("PATEK", "CLEAN200") is False
+
+
+def test_deposit_seller_bond_reverts_after_terminal_states(contract, direct_vm, direct_alice, direct_bob):
+    """
+    Regression test for Steward Joaquin:
+    Ensures deposit_seller_bond strictly reverts if the deal is not in FUNDED state:
+    1. After seller settlement (SETTLED_TO_SELLER)
+    2. After buyer refund via stolen/counterfeit adjudication (REFUNDED_TO_BUYER)
+    3. After insufficient-data dispute closure (DISPUTED)
+    """
+    # --- Case 1: Reverts after seller settlement ---
+    direct_vm.sender = direct_alice
+    direct_vm.value = 5000
+    did_settled = contract.create_and_fund_deal(
+        seller=direct_bob,
+        brand="ROLEX",
+        model="Submariner",
+        serial_number="SETTLE123",
+        registry_lookup_url="https://thewatchregister.com/check/settle123"
+    )
+    contract.confirm_receipt_and_release(did_settled)
+
+    deal = json.loads(contract.get_deal(did_settled))
+    assert deal["status"] == "SETTLED_TO_SELLER"
+
+    direct_vm.sender = direct_bob
+    direct_vm.value = 500
+    with pytest.raises(Exception, match="Deal is not in FUNDED state"):
+        contract.deposit_seller_bond(did_settled)
+
+    # --- Case 2: Reverts after buyer refund (stolen verdict) ---
+    direct_vm.sender = direct_alice
+    direct_vm.value = 6000
+    did_refunded = contract.create_and_fund_deal(
+        seller=direct_bob,
+        brand="OMEGA",
+        model="Speedmaster",
+        serial_number="STOLEN999",
+        registry_lookup_url="https://thewatchregister.com/check/stolen999"
+    )
+
+    direct_vm.mock_web("stolen999", {
+        "status": 200,
+        "body": "Record for STOLEN999: Reported stolen in Berlin."
+    })
+    direct_vm.mock_llm(".*STOLEN999.*", json.dumps({
+        "verdict": "STOLEN_FLAGGED",
+        "confidence": 98,
+        "reason": "Serial reported stolen."
+    }))
+    contract.dispute_authenticity_or_provenance(did_refunded)
+
+    deal = json.loads(contract.get_deal(did_refunded))
+    assert deal["status"] == "REFUNDED_TO_BUYER"
+
+    direct_vm.sender = direct_bob
+    direct_vm.value = 500
+    with pytest.raises(Exception, match="Deal is not in FUNDED state"):
+        contract.deposit_seller_bond(did_refunded)
+
+    # --- Case 3: Reverts after insufficient-data closure ---
+    direct_vm.sender = direct_alice
+    direct_vm.value = 4000
+    did_insufficient = contract.create_and_fund_deal(
+        seller=direct_bob,
+        brand="CARTIER",
+        model="Santos",
+        serial_number="SANTOS404",
+        registry_lookup_url="https://thewatchregister.com/check/santos404"
+    )
+
+    direct_vm.mock_web("santos404", {
+        "status": 404,
+        "body": "404 Not Found"
+    })
+    contract.dispute_authenticity_or_provenance(did_insufficient)
+
+    deal = json.loads(contract.get_deal(did_insufficient))
+    assert deal["status"] == "DISPUTED"
+    assert deal["verdict"] == "INSUFFICIENT_DATA"
+
+    direct_vm.sender = direct_bob
+    direct_vm.value = 500
+    with pytest.raises(Exception, match="Deal is not in FUNDED state"):
+        contract.deposit_seller_bond(did_insufficient)
+

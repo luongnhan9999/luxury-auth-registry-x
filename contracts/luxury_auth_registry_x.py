@@ -234,6 +234,9 @@ class Contract(gl.Contract):
             raise gl.UserError("Deal not found.")
 
         deal = self.deals[deal_id]
+        if deal.status != "FUNDED":
+            raise gl.UserError("Deal is not in FUNDED state.")
+
         if _addr_str(_get_sender()) != _addr_str(deal.seller):
             raise gl.UserError("Only designated seller can deposit bond.")
 

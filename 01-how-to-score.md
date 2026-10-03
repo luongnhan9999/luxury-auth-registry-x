@@ -44,8 +44,8 @@ Mục tiêu: Đạt điểm tối đa (4–5) ở cả 4 trục đánh giá củ
   01-how-to-score.md
   README.md
   ```
-- [x] **100% Test Pass với `gltest`:** Bộ test tự động gồm 14 kịch bản kiểm thử toàn diện (happy path, serial bị cắp, hàng giả, clean verified, URL 404, markdown wrapper, low confidence fallback, multi-deal isolation). Thời gian chạy chỉ ~5s.
-- [x] **Deploy thực tế thành công trên Studionet:** Triển khai và xác thực thành công tại địa chỉ `0x5E1cE873BbF0392fdD005c7b88fd2FB62Aa0DB15` (Tx Hash: `0xd749110a3eec992264d6ab9481f9f665233e835ad9550f7cf60d10dce666e81a`).
+- [x] **100% Test Pass với `gltest`:** Bộ test tự động gồm 15 kịch bản kiểm thử toàn diện (happy path, serial bị cắp, hàng giả, clean verified, URL 404, markdown wrapper, low confidence fallback, multi-deal isolation, và regression test chặn cọc ở terminal states theo yêu cầu của Steward Joaquin). Thời gian chạy chỉ ~2.4s.
+- [x] **Deploy thực tế thành công trên Studionet:** Triển khai và xác thực thành công tại địa chỉ `0xd74B7d80dE90efF7e2325B4c9773712d072f6dC4` (Tx Hash: `0x1a2447042130fb7ece594b082edf7de6bd4aa7b9844cfa413eaf60c2be5badf3`).
 
 ### 4. Trục 4: Frontend & UX Ready (Điểm: 5/5)
 - [x] Hợp đồng phơi bày đầy đủ các hàm view chuẩn định dạng JSON:
