@@ -1,14 +1,28 @@
 import pytest
 import json
 from gltest import get_gl_client, get_accounts
+import gltest.direct.loader as _gl_loader
 
-# Patch gl.UserError for gltest runner environment
-try:
-    import genlayer.gl as gl
-    from genlayer.gl.vm import UserError
-    gl.UserError = UserError
-except Exception:
-    pass
+_orig_load_module = _gl_loader._load_module
+
+
+def _patched_load_module(contract_path):
+    mod = _orig_load_module(contract_path)
+    try:
+        import genlayer.gl as gl
+        from genlayer.gl.vm import UserError
+        gl.UserError = UserError
+        import sys
+        if "genlayer" in sys.modules:
+            sys.modules["genlayer"].gl.UserError = UserError
+        if hasattr(mod, "gl"):
+            mod.gl.UserError = UserError
+    except Exception:
+        pass
+    return mod
+
+
+_gl_loader._load_module = _patched_load_module
 
 
 def sim_installMocks(mocks: dict, vm=None):
